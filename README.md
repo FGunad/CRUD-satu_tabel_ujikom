@@ -1,64 +1,375 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# CRUD Satu tabel **admin**
+Membuat CRUD satu tabel admin dengan struktur tabel sesuai dengan soal ujikom hotel menggunakan laravel 8
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Instalasi
+### Buat project baru
+```php
+composer create-project laravel/laravel:8.6 example-app
+```
 
-## About Laravel
+### Menambahkan bootstrap 5.1
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Download bootstrap di [Bootstrap](https://getbootstrap.com/docs/5.1/getting-started/download/) *klik button* **download**.
+Extrak file lalu pindahkan ke folder **public**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+contoh :
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+![bootstrap](https://user-images.githubusercontent.com/85858049/159110821-f8dd2c25-8c80-4166-9d39-32bd938f51c7.PNG)
 
-## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Buat Model, Migration, dan Controller Admin
+```php
+php artisan make:model Admin -mc --resource
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Connect kepada database
+Mengubah koneksi ke database pada file **.env** pada bagian ini sesusai database anda :
 
-## Laravel Sponsors
+```php
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nama_database
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Setup Model Admin
+Menambahkan **fillable**
 
-### Premium Partners
+```php
+<?php
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
+namespace App\Models;
 
-## Contributing
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+class Admin extends Model
+{
+    use HasFactory;
 
-## Code of Conduct
+    protected $fillable = [
+        'nama', 'username', 'password', 'role'
+    ];
+}
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Setup Migration Admin
+tambah field yang dibutuhkan pada table admin di class **create_admins_table** pada method **up()**.
 
-## Security Vulnerabilities
+```php
+public function up()
+{
+    Schema::create('admins', function (Blueprint $table) {
+        $table->id();
+        $table->string('nama');
+        $table->string('username')->unique();
+        $table->string('password');
+        $table->enum('role', ['admin', 'resepsionis'])->default('resepsionis');
+        $table->rememberToken();
+        $table->timestamps();
+    });
+}
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+###  Run Migrate
+Jalankan migration dengan perintah artisan :
+```php 
+php artisan migrate:fresh
+```
 
-## License
+### Setup Route
+Buat beberapa route pada **routes/web.php**.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```php
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+
+...................................
+...................................
+
+Route::get('/', function () {
+    return redirect()->route('admin.index');
+});
+
+Route::resource('admin', AdminController::class);
+
+```
+
+### Setup AdminController
+
+Buka file AdminController lalu sesuaikan dengan kodingan berikut :
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Admin;
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $data = Admin::all();
+        return view('admin.index', ['data' => $data]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('admin.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required',
+            'username' => 'required|unique:admins',
+            'password' => 'required|confirmed',
+            'role' => 'required'
+        ]);
+
+        Admin::create($request->all());
+
+        return redirect()->route('admin.index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Admin $admin)
+    {
+        abort(404);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Admin $admin)
+    {
+        return view('admin.edit', ['admin'=>$admin]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Admin $admin)
+    {
+        $request->validate([
+            'nama' => 'required',
+            'username' => "required|unique:admins,username,{$admin->id}"
+        ]);
+
+        if ($request->password) {
+            $array = [
+                'nama'=>$request->nama,
+                'username'=>$request->username,
+                'password'=>bcrypt($request->password),
+            ];
+        } else {
+            $array = [
+                'nama'=>$request->nama,
+                'username'=>$request->username,
+            ];
+        }
+        $admin->update($array);
+
+        return redirect()->route('admin.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Admin $admin)
+    {
+        $admin->delete();
+
+        return back();
+    }
+}
+
+```
+
+### Create Views
+
+- layouts/main.blade.php
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Admin</title>
+        <link rel="stylesheet" href="{{ url('/bootstrap-5.1.3-dist/css/bootstrap.min.css') }}">
+    </head>
+
+    <body>
+        <div class="container content mt-5">
+            @yield('content')
+        </div>
+        <script src="{{ url('/bootstrap-5.1.3-dist/js/bootstrap.min.js') }}"></script>
+        @stack('js');
+    </body>
+
+    </html>
+    ```
+- admin/index.blade.php
+
+    ```php
+    @extends('layouts.main')
+
+    @section('content')
+            <a href="{{ route('admin.create') }}" class="btn btn-success mb-3">Tambah</a>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($data as $row)
+                        <tr>
+                            <td>{{ $row->nama }}</td>
+                            <td>{{ $row->username }}</td>
+                            <td>{{ $row->role }}</td>
+                            <td>
+                                <a href="{{ route('admin.edit', ['admin'=>$row->id]) }}" class="btn btn-info btn-sm">Edit</a>
+
+                                <button onclick="deleteAdmin({{ $row->username }})" class="btn btn-danger btn-sm">Hapus</button>
+
+                                <form id="{{ $row->username }}" hidden action="{{ route('admin.destroy', $row->id) }}" method="post">
+                                    @method('DELETE')
+                                    @csrf
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+    @endsection
+    @push('js')
+    <script>
+    function deleteAdmin(id) {
+        let text = "Klik OK untuk hapus!";
+        if (confirm(text) == true) {
+            id.submit()
+        }
+    }
+    </script>
+    @endpush
+
+    ```
+
+- components/input.blade.php
+
+    ```html
+    @props(['label', 'name', 'type'=>'text', 'value'=>''])
+    <div class="form-group">
+        <Label>{{ $label }}</Label>
+        <input
+        name="{{ $name }}"
+        type="{{ $type }}"
+        value="{{ old($name,$value) }}"
+        class="form-control{{ $errors->has($name) ? ' is-invalid' : ''}}"
+        >
+        @error($name)
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    ```
+
+- admin/create.blade.php
+
+    ```html
+    @extends('layouts.main')
+
+    @section('content')
+    <h1>Tambah Admin</h1>
+        <form action="{{ route('admin.store') }}" method="post">
+            @csrf
+            <x-input name="nama" label="Nama" />
+            <x-input name="username" label="Username" />
+            <x-input name="password" label="Password" type="password" />
+            <x-input name="password_confirmation" label="Konfirmasi Password" type="password" />
+
+            <div class="form-group">
+                <label for="">Role</label>
+                <select name="role" class="form-select" aria-label="Select Role">
+                    <option value="admin">Admin</option>
+                    <option value="resepsionis">Resepsionis</option>
+                </select>
+            </div>
+            <button class="btn btn-success mt-3" type="submit">Save</button>
+        </form>
+    @endsection
+
+    ```
+
+- admin/edit.blade.php
+    ```html
+    @extends('layouts.main')
+
+    @section('content')
+    <h1>Edit Admin</h1>
+        <form action="{{ route('admin.update', ['admin'=>$admin->id]) }}" method="post">
+            @method('PUT')
+            @csrf
+            <x-input name="nama" label="Nama" :value="$admin->nama" />
+            <x-input name="username" label="Username" :value="$admin->username" />
+            <x-input name="password" label="Password" type="password" />
+            <x-input name="password_confirmation" label="Konfirmasi Password" type="password" />
+            <button class="btn btn-success mt-3" type="submit">Update</button>
+        </form>
+    @endsection
+
+    ```
+
+
+### Run Server
+```php
+ php artisan serve
+```
+
+### Buka di browser
+Buka di browser dengan url [http://localhost:8000](http://localhost:8000)
+
