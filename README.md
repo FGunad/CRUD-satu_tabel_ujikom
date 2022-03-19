@@ -4,8 +4,9 @@ Membuat CRUD satu tabel admin dengan struktur tabel sesuai dengan soal ujikom ho
 ## Instalasi
 ### Buat project baru
 ```php
-composer create-project laravel/laravel:8.6 example-app
+composer create-project laravel/laravel:8.6 nama_folder
 ```
+**nama_folder** disesuaikan dengan keinginan!
 
 ### Menambahkan bootstrap 5.1
 
@@ -80,7 +81,7 @@ php artisan migrate:fresh
 ```
 
 ### Setup Route
-Buat beberapa route pada **routes/web.php**.
+Rubah **Route::get /** dan buat route resource admin pada file **routes/web.php**.
 
 ```php
 <?php
