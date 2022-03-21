@@ -12,9 +12,13 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Admin::all();
+        $cari = $request->search;
+
+        $data = Admin::when($cari, function($query, $cari){
+            return $query->where('nama', 'like', "%{$cari}%");
+        })->get();
         return view('admin.index', ['data' => $data]);
     }
 
@@ -56,7 +60,7 @@ class AdminController extends Controller
      */
     public function show(Admin $admin)
     {
-        abort(404);
+        return view('admin.show', ['data'=>$admin]);
     }
 
     /**
