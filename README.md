@@ -381,6 +381,10 @@ Buka di browser dengan url [http://localhost:8000](http://localhost:8000)
 
 ## Menambahkan Search dan Show Data
 
+
+![Screenshot (50)](https://user-images.githubusercontent.com/85858049/159263481-689291ce-813c-45a9-be4a-1fd83217b204.png)
+
+
 ### Edit file **admin/index.blade.php**
 
 Disini saya merubah code di atas tag **table**. menambahkan form untuk search
