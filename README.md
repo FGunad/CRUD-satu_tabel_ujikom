@@ -374,3 +374,286 @@ class AdminController extends Controller
 ### Buka di browser
 Buka di browser dengan url [http://localhost:8000](http://localhost:8000)
 
+<br>
+<br>
+<br>
+<br>
+
+## Menambahkan Search dan Show Data
+
+### Edit file **admin/index.blade.php**
+
+Disini saya merubah code di atas tag **table**. menambahkan form untuk search
+```php
+...................................
+@section('content')
+
+<div class="row">
+    <div class="col-auto">
+        <a href="{{ route('admin.create') }}" class="btn btn-success mb-3"> Tambah</a>
+    </div>
+    <form action="?" class="col-auto ms-auto">
+        <div class="input-group">
+            <input type="text" name="search" value="{{ request()->search }}" class="form-control">
+            <button class="btn btn-info" type="submit">Cari</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-bordered">
+...................................
+```
+
+Kemudian saya menambahkan button **lihat** diatas button **edit**. 
+
+code berikut :
+
+```php
+<a href="{{ route('admin.show', ['admin'=>$row->id]) }}" class="btn btn-info btn-sm">Lihat</a>
+```
+
+Maka code file **admin/index.blade.php** menjadi :
+
+```php
+@extends('layouts.main')
+
+@section('content')
+        {{-- Tag untuk search --}}
+        <div class="row">
+            <div class="col-auto">
+                <a href="{{ route('admin.create') }}" class="btn btn-success mb-3"> Tambah</a>
+            </div>
+            <form action="?" class="col-auto ms-auto">
+                <div class="input-group">
+                    <input type="text" name="search" value="{{ request()->search }}" class="form-control">
+                    <button class="btn btn-info" type="submit">Cari</button>
+                </div>
+            </form>
+        </div>
+        {{-- End Tag Search --}}
+
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($data as $row)
+                    <tr>
+                        <td>{{ $row->nama }}</td>
+                        <td>{{ $row->username }}</td>
+                        <td>{{ $row->role }}</td>
+                        <td>
+                            {{-- Btn lihat --}}
+                            <a href="{{ route('admin.show', ['admin'=>$row->id]) }}" class="btn btn-info btn-sm">Lihat</a>
+                            {{-- End Btn lihat --}}
+
+                            <a href="{{ route('admin.edit', ['admin'=>$row->id]) }}" class="btn btn-info btn-sm">Edit</a>
+
+                            <button onclick="deleteAdmin({{ $row->username }})" class="btn btn-danger btn-sm">Hapus</button>
+
+                            <form id="{{ $row->username }}" hidden action="{{ route('admin.destroy', $row->id) }}" method="post">
+                                @method('DELETE')
+                                @csrf
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+@endsection
+@push('js')
+<script>
+function deleteAdmin(id) {
+    let text = "Klik OK untuk hapus!";
+    if (confirm(text) == true) {
+        id.submit()
+    }
+}
+</script>
+@endpush
+
+```
+
+### Edit file **AdminController**
+Saya merubah pada function **index**.
+
+code brikut :
+
+```php
+public function index(Request $request)
+{
+    $cari = $request->search;
+
+    $data = Admin::when($cari, function($query, $cari){
+        return $query->where('nama', 'like', "%{$cari}%");
+    })->get();
+    return view('admin.index', ['data' => $data]);
+}
+```
+
+Kemudian Saya merubah function **show**.
+
+code berikut :
+
+```php
+public function show(Admin $admin)
+{
+    return view('admin.show', ['data'=>$admin]);
+}
+```
+
+Maka code file **AdminController.php** menjadi :
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Admin;
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $cari = $request->search;
+
+        $data = Admin::when($cari, function($query, $cari){
+            return $query->where('nama', 'like', "%{$cari}%");
+        })->get();
+        return view('admin.index', ['data' => $data]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('admin.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required',
+            'username' => 'required|unique:admins',
+            'password' => 'required|confirmed',
+            'role' => 'required'
+        ]);
+
+        Admin::create($request->all());
+
+        return redirect()->route('admin.index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Admin $admin)
+    {
+        return view('admin.show', ['data'=>$admin]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Admin $admin)
+    {
+        return view('admin.edit', ['admin'=>$admin]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Admin $admin)
+    {
+        $request->validate([
+            'nama' => 'required',
+            'username' => "required|unique:admins,username,{$admin->id}"
+        ]);
+
+        if ($request->password) {
+            $array = [
+                'nama'=>$request->nama,
+                'username'=>$request->username,
+                'password'=>bcrypt($request->password),
+            ];
+        } else {
+            $array = [
+                'nama'=>$request->nama,
+                'username'=>$request->username,
+            ];
+        }
+        $admin->update($array);
+
+        return redirect()->route('admin.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Admin  $admin
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Admin $admin)
+    {
+        $admin->delete();
+
+        return back();
+    }
+}
+
+```
+
+### Membuat file views baru **admin/show.blade.php**
+
+Code berikut :
+
+```php
+@extends('layouts.main')
+
+@section('content')
+    <div class="card col-5">
+        <div class="card-body">
+            <p>Nama : {{ $data->nama }}</p>
+            <p>Username : {{ $data->username }}</p>
+            <p>Role : {{ $data->role }}</p>
+        </div>
+        <div class="card-footer">
+            <a href="{{ route('admin.index') }}" class="btn btn-info">Kembali</a>
+        </div>
+    </div>
+@endsection
+
+```
+
+**Rubah tampilan sesuai keinginan !**
