@@ -455,7 +455,7 @@ Maka code file **admin/index.blade.php** menjadi :
 
                             <a href="{{ route('admin.edit', ['admin'=>$row->id]) }}" class="btn btn-info btn-sm">Edit</a>
 
-                            <button onclick="deleteAdmin({{ $row->username }})" class="btn btn-danger btn-sm">Hapus</button>
+                            <button onClick="deleteAdmin({{ $row->username }})" class="btn btn-danger btn-sm">Hapus</button>
 
                             <form id="{{ $row->username }}" hidden action="{{ route('admin.destroy', $row->id) }}" method="post">
                                 @method('DELETE')
