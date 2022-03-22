@@ -49,7 +49,7 @@ class AdminController extends Controller
 
         Admin::create($request->all());
 
-        return redirect()->route('admin.index');
+        return redirect()->route('admin.index')->with('status', 'store');
     }
 
     /**
@@ -102,7 +102,7 @@ class AdminController extends Controller
         }
         $admin->update($array);
 
-        return redirect()->route('admin.index');
+        return redirect()->route('admin.index')->with('status', 'update');
     }
 
     /**
@@ -115,6 +115,6 @@ class AdminController extends Controller
     {
         $admin->delete();
 
-        return back();
+        return back()->with('status', 'destroy');
     }
 }

@@ -1,6 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
+    <x-status />
         {{-- Tag untuk search --}}
         <div class="row">
             <div class="col-auto">
@@ -14,7 +15,7 @@
             </form>
         </div>
         {{-- End Tag Search --}}
-
+        
         <table class="table table-bordered">
             <thead>
                 <tr>

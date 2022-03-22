@@ -661,3 +661,67 @@ Code berikut :
 ```
 
 **Rubah tampilan sesuai keinginan !**
+
+
+
+## Menambahkan Alert
+### Menambahkan file **componets/status.blade.php**
+code berikut :
+
+```php
+@if (session('status')=='store')
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Berhasil Simpan!</strong> Data telah berhasil di simpan.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if (session('status')=='update')
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Berhasil Update!</strong> Data telah berhasil di ubah.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if (session('status')=='destroy')
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Berhasil Hapus!</strong> Data telah berhasil di hapus.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+```
+
+### Menambah kan component **status** di file **admin/index.blade.php** 
+
+```php
+
+@section('content')
+<x-status />
+
+...................................
+
+```
+
+### Merubah file **AdminController.php**
+
+menambahkan function **with** di setiap **return store, update, dan destroy**
+
+function store menjadi :
+
+```php
+return redirect()->route('admin.index')->with('status', 'store');
+```
+function update menjadi :
+
+```php
+return redirect()->route('admin.index')->with('status', 'update');
+```
+function destroy menjadi :
+
+```php
+return back()->with('status', 'destroy');
+```
+
+
+ 
