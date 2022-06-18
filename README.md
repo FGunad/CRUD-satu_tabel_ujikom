@@ -724,4 +724,30 @@ return back()->with('status', 'destroy');
 ```
 
 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+# Perintah Artisan
+
+### membuat model
+```sh
+php artisan make:model NamaModel
+```
+
+### membuat Migration
+```sh
+php artisan make:migration NamaMigration
+```
+ 
+### membuat Controller
+```sh
+php artisan make:controller NamaController
+```
  

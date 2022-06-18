@@ -12,6 +12,7 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index(Request $request)
     {
         $cari = $request->search;
@@ -19,6 +20,11 @@ class AdminController extends Controller
         $data = Admin::when($cari, function($query, $cari){
             return $query->where('nama', 'like', "%{$cari}%");
         })->get();
+
+        if ($cari && empty($data[0])){
+            return view('admin.index', ['data' => $data, 'nodata'=>true]);
+        }
+
         return view('admin.index', ['data' => $data]);
     }
 
@@ -27,6 +33,7 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    
     public function create()
     {
         return view('admin.create');

@@ -1,21 +1,26 @@
 @extends('layouts.main')
 
 @section('content')
-    <x-status />
-        {{-- Tag untuk search --}}
-        <div class="row">
-            <div class="col-auto">
-                <a href="{{ route('admin.create') }}" class="btn btn-success mb-3"> Tambah</a>
-            </div>
-            <form action="?" class="col-auto ms-auto">
-                <div class="input-group">
-                    <input type="text" name="search" value="{{ request()->search }}" class="form-control">
-                    <button class="btn btn-info" type="submit">Cari</button>
-                </div>
-            </form>
+@if (!empty($nodata))
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Maaf</strong> data yang anda cari tidak ada.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+<div class="row">
+    <div class="col-auto">
+        <a href="{{ route('admin.create') }}" class="btn btn-success mb-3"> Tambah</a>
+    </div>
+    <form action="?" class="col-auto ms-auto">
+        <div class="input-group">
+            <input type="text" name="search" value="{{ request()->search }}" class="form-control">
+            <button class="btn btn-info" type="submit">Cari</button>
         </div>
-        {{-- End Tag Search --}}
-        
+    </form>
+</div>
+<x-status />
+{{-- End Tag Search --}}
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -62,4 +67,3 @@ function deleteAdmin(id) {
 @endpush
 
 {{-- a.btn.btn-success.mb-3+table.table.table-bordered>(thead>tr>th*4)+(tbody>tr>td+td+td+td>a.btn.btn-info.btn-sm+button.btn.btn-danger.btn-sm[onClick="deleteAdmin"]+form#[action="" method="post"]) --}}
-
